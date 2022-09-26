@@ -1,5 +1,8 @@
 # Mission 1
 
+Ma solution utilisant la matière vue au cours se trouve dans main.py
+J'ai également placé un fichier main_IMPROVED.py contenant une version personelle contenant de la matière encore non vue au cours
+
 ## Objectif
 
 Dans cette mission initiale, vous allez produire une table des carrés et des sommes des carrés :
