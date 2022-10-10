@@ -51,7 +51,7 @@ Ecrivez (et spécifiez) une fonction plus générale three_color_flag(width, col
 
 ## Notes de moi même
 
-Le programme "condensé" se trouve dans main_small.py
+Le programme "condensé" se trouve dans main_standalone.py
 Mais j'ai, pour plus de lisibilité, découpé mon projet en classes et en plusieurs fichiers.
-Le fichier *main_small.py* est donc **standalone**, il peut s'executer tout seul
+Le fichier *main_standalone.py* est donc **standalone**, il peut s'executer tout seul
 Tandis que le rest est une unité, dont le point d'entée est main.py
