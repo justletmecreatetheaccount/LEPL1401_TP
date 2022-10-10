@@ -1,5 +1,13 @@
 # Mission 3
 
+## Utilisation du programme
+
+Il suffit d'executer main.py (ou bien main_standalone) et une fenêtre s'ouvrira.
+
+Vous pouvez cliquer pour dessiner des drapeaux n'importe ou, changer le type de drapeau via le select, et changer la taille dans l'input a coté.
+
+Afin de valider le changement de taille, il faut bien appuyer sur **enter** et si la valeur entrée est invalide vous serez prévenu
+
 ## Objectif
 
 L'objectif final de cette mission est de produire à l'écran un dessin du drapeau de l'Union Européenne :
