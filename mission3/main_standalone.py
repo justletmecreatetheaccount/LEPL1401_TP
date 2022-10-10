@@ -134,7 +134,7 @@ def flag(width,x,y, country):
     horizontal = country["horizontal"]
 
     if not horizontal:
-        width = width * 0.75 # TODO: Fixer la différence de taille entre les drapeaux horizontaux et verticaux
+        width = width * ratio
 
     angle = 0 if horizontal else 90
 
@@ -157,17 +157,17 @@ DRAPEAUX CUSTOMS (Europe, ...)
 def europe_flag():
 
     #STYLE CONSTANTS (Cela concerne juste l'apparence du drapeau européen)
-    ratio_star_size = 1/15
+    ratio_star_size = 1/30
     stars_number = 12
     star_angle_number = 5
-    star_ray = flag_size/3
+    star_ray = flag_size/6
 
-    width = flag_size*2
-    height = flag_size
+    width = flag_size
+    height = flag_size / 2
     rectangle(width, -height,"blue")
     tortue.forward(width/2)
     tortue.left(90)
-    tortue.forward(height/2 - flag_size*(ratio_star_size)*1/2)
+    tortue.forward(height/2)
     tortue.right(90)
     center = tortue.pos()
     for x in range(stars_number):
@@ -268,11 +268,6 @@ countries = {
         "horizontal": True,
         "ratio": 2/3,
         "colors": [("blue", 1/3), ("white", 1/3), ("red", 1/3)]
-    },
-    "Japon": {
-        "horizontal": True,
-        "ratio": 2/3,
-        "colors": [("red", 1/4), ("blue", 1/2), ("black",1/4)]
     },
     "Europe": {
         "callback": europe_flag

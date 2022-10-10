@@ -4,17 +4,17 @@ from math import sin, cos, pi
 def europe_flag(config: UIConfig, artist: Artist):
 
     #STYLE CONSTANTS (Cela concerne juste l'apparence du drapeau européen)
-    ratio_star_size = 1/15
+    ratio_star_size = 1/30
     stars_number = 12
     star_angle_number = 5
-    star_ray = config.flagSize/3
+    star_ray = config.flagSize/6
 
-    width = config.flagSize*2
-    height = config.flagSize
+    width = config.flagSize
+    height = config.flagSize / 2
     artist.draw_rectangle(width, -height,"blue")
     artist.turtle.forward(width/2)
     artist.turtle.left(90)
-    artist.turtle.forward(height/2 - config.flagSize*(ratio_star_size)*1/2)
+    artist.turtle.forward(height/2)
     artist.turtle.right(90)
     center = artist.turtle.pos()
     for x in range(stars_number):

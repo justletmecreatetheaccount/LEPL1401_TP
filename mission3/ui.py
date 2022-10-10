@@ -26,7 +26,6 @@ class UIConfig:
         turtle.pendown()
         turtle.forward(1825)
         turtle.penup()
-        print("Things done")
 
     def add_turtle_button(self):
         """
@@ -80,7 +79,6 @@ class UIConfig:
         self.numberEntry.place(x=400,y=10)
 
     def onclick(self, x,y):
-        print(self)
         if y < 25:
             return # Block y if it's below 25 so the user can't draw anything on the control bar.
         self.clickCallback(x, y)

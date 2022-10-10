@@ -2,7 +2,6 @@ from ui import UIConfig
 import turtle
 class Artist:
     def __init__(self, window, config: UIConfig):
-        print("Heyyy")
         self.isDrawing = False
         self.window = window
         self.config = config
@@ -64,7 +63,7 @@ class Artist:
         horizontal = country["horizontal"]
 
         if not horizontal:
-            width = width * 0.75 # TODO: Fixer la différence de taille entre les drapeaux horizontaux et verticaux
+            width = width * ratio
 
         angle = 0 if horizontal else 90
 
