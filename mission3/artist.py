@@ -75,29 +75,32 @@ class Artist:
             color_height = height if horizontal else height * color_ratio
             print(color, color_width, color_height)
             self.draw_rectangle(color_width, -color_height, color) # color_height is times -1 to draw below the cursor.
-            if not horizontal: #Placement pour le prochain bloc de couleur si vertical
+
+            #Placement pour le prochain bloc de couleur si vertical
+            if not horizontal: 
                 turtle.right(90)
                 turtle.forward(-color_height)
                 turtle.left(90)
             else: 
                 turtle.forward(color_width)
+
+        #Retour au coin supérieur gauche du drapeau
         if horizontal:
-            turtle.forward(width)
+            turtle.forward(-width)
         else:
             turtle.right(90)
             turtle.forward(height)
             turtle.left(90)
         home_x,home_y = turtle.pos()
-        if len(country["stars"]) > 0 or True:
-            for star in country["stars"]:
-                starSize = width * star["size"]
-                turtle.penup()
-                turtle.goto(home_x, home_y)
-                turtle.forward(width*star["position"][0])
-                turtle.right(90)
-                turtle.forward(-height*star["position"][1]+starSize/2)
-                turtle.left(90)
-                self.draw_star(star["sides"], star["color"], width*star["size"])
+        for star in country["stars"]:
+            starSize = width * star["size"]
+            turtle.penup()
+            turtle.goto(home_x, home_y)
+            turtle.forward(width*star["position"][0])
+            turtle.right(90)
+            turtle.forward(-height*star["position"][1]+starSize/2)
+            turtle.left(90)
+            self.draw_star(star["sides"], star["color"], width*star["size"])
             
         self.isDrawing = False
     def wait(self):

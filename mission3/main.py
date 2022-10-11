@@ -12,7 +12,7 @@ registry.add_flag("Cameroun", colors=[("green", 1/3), ("red", 1/3), ("yellow", 1
     "size": 1/8,
     "position": (1/2, 1/2),
     "sides": 5
-}], horizontal=False)
+}])
 registry.add_flag("France", colors=[("blue", 1/3), ("white", 1/3), ("red", 1/3)], ratio=2/3)
 registry.add_flag("Allemagne", colors= [("black",1/3),("red",1/3),("yellow",1/3)], ratio=3/5, horizontal=False)
 registry.add_flag("Arménie", colors= [("red",1/3),("blue",1/3),("orange",1/3)], ratio=3/5, horizontal=False)

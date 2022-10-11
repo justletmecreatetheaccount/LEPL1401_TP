@@ -12,9 +12,10 @@ def europe_flag(config: UIConfig, artist: Artist):
     width = config.flagSize
     height = config.flagSize / 2
     artist.draw_rectangle(width, -height,"blue")
+    starSize = config.flagSize*ratio_star_size
     artist.turtle.forward(width/2)
     artist.turtle.left(90)
-    artist.turtle.forward(height/2)
+    artist.turtle.forward(height/2 - starSize/2)
     artist.turtle.right(90)
     center = artist.turtle.pos()
     for x in range(stars_number):
@@ -24,4 +25,4 @@ def europe_flag(config: UIConfig, artist: Artist):
         artist.turtle.penup()
         artist.turtle.goto(center[0]+(cosinus*star_ray), center[1]-(sinus*star_ray))
         artist.turtle.pendown()
-        artist.draw_star(star_angle_number,"yellow", config.flagSize*ratio_star_size)
+        artist.draw_star(star_angle_number,"yellow", starSize)
