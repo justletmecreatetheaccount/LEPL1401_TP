@@ -51,8 +51,9 @@ class Artist:
         turtle.goto(x,y)
 
         country = country if country else self.config.get_country()
-        width = self.config.flagSize
         ratio = country["ratio"]
+        
+        width = self.config.flagSize
         height = width * country["ratio"]
 
         #Certains drapeaux (Europe) ne peuvent être dessinés via des simples bandes, j'appelle donc la fonction propre au drapeau qu'on essaie de dessiner
@@ -66,20 +67,26 @@ class Artist:
         #La fonction horizontale sert a faire des drapeaux dans différentes orientations (Belgique = horizontal, Allemagne = vertical)
         horizontal = country["horizontal"]
 
-        if not horizontal:
-            width = width * ratio
 
-        angle = 0 if horizontal else 90
-
-        turtle.right(angle)
+        print("Total size: ",width, height)
 
         for (color, color_ratio) in country["colors"]:
-            color_width =  width * color_ratio * (1 if horizontal else -1) # If width = 200 but color only 1/2, color_width will be 100
-            color_height = width * (ratio if horizontal else 1/ratio) # If height is width/2, then height will be 100
+            color_width =  width * color_ratio if horizontal else width
+            color_height = height if horizontal else height * color_ratio
+            print(color, color_width, color_height)
             self.draw_rectangle(color_width, -color_height, color) # color_height is times -1 to draw below the cursor.
-            turtle.forward(color_width)
-        turtle.right(-angle)
-        turtle.forward(-width)
+            if not horizontal: #Placement pour le prochain bloc de couleur si vertical
+                turtle.right(90)
+                turtle.forward(-color_height)
+                turtle.left(90)
+            else: 
+                turtle.forward(color_width)
+        if horizontal:
+            turtle.forward(width)
+        else:
+            turtle.right(90)
+            turtle.forward(height)
+            turtle.left(90)
         home_x,home_y = turtle.pos()
         if len(country["stars"]) > 0 or True:
             for star in country["stars"]:

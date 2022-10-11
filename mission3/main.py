@@ -1,10 +1,8 @@
-from custom.flags.cameroun import cameroun_flag
 from window import Window
 from registry import FlagsRegistry
 from artist import Artist
 from ui import UIConfig
 from custom.flags.europe import europe_flag
-from custom.flags.cameroun import cameroun_flag
 
 
 registry = FlagsRegistry()
