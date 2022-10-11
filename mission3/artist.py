@@ -29,11 +29,14 @@ class Artist:
         turtle.fillcolor(color)
         turtle.begin_fill()
         turtle.pendown()
+        offset_angle = 180-(180/n*2) 
+        turtle.left(offset_angle)
         for x in range(n):
             turtle.forward(size)
             turtle.right(180-(180/n))
+        turtle.right(offset_angle)
         turtle.end_fill()
-    def flag(self,x,y):
+    def flag(self,x,y, country=None):
         """
         Probablement la fonction la plus complexe de ce programme. Elle permet de dessiner n'importe quel drapeau constitué de X bandes de couleur différentes.
         """
@@ -47,8 +50,10 @@ class Artist:
         turtle.penup()
         turtle.goto(x,y)
 
-        country = self.config.get_country()
+        country = country if country else self.config.get_country()
         width = self.config.flagSize
+        ratio = country["ratio"]
+        height = width * country["ratio"]
 
         #Certains drapeaux (Europe) ne peuvent être dessinés via des simples bandes, j'appelle donc la fonction propre au drapeau qu'on essaie de dessiner
         if country["callback"] != None: 
@@ -56,7 +61,6 @@ class Artist:
             self.isDrawing = False
             return
         
-        ratio = country["ratio"]
         turtle.pendown()
         
         #La fonction horizontale sert a faire des drapeaux dans différentes orientations (Belgique = horizontal, Allemagne = vertical)
@@ -75,6 +79,19 @@ class Artist:
             self.draw_rectangle(color_width, -color_height, color) # color_height is times -1 to draw below the cursor.
             turtle.forward(color_width)
         turtle.right(-angle)
+        turtle.forward(-width)
+        home_x,home_y = turtle.pos()
+        if len(country["stars"]) > 0 or True:
+            for star in country["stars"]:
+                starSize = width * star["size"]
+                turtle.penup()
+                turtle.goto(home_x, home_y)
+                turtle.forward(width*star["position"][0])
+                turtle.right(90)
+                turtle.forward(-height*star["position"][1]+starSize/2)
+                turtle.left(90)
+                self.draw_star(star["sides"], star["color"], width*star["size"])
+            
         self.isDrawing = False
     def wait(self):
         turtle.done()
