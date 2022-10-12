@@ -6,6 +6,7 @@ from custom.flags.europe import europe_flag
 
 
 registry = FlagsRegistry()
+registry.add_flag("Europe", callback=europe_flag)
 registry.add_flag("Belgique", colors=[("black", 1/3), ("yellow", 1/3), ("red", 1/3)], ratio=2/3)
 registry.add_flag("Cameroun", colors=[("green", 1/3), ("red", 1/3), ("yellow", 1/3)], ratio=2/3, stars=[{
     "color": "yellow",
@@ -27,8 +28,6 @@ registry.add_flag("Bolivie", colors= [("red",1/3),("yellow",1/3),("green",1/3)],
 registry.add_flag("Bulgarie", colors= [("white",1/3),("green",1/3),("red",1/3)], ratio=3/5, horizontal=False)
 registry.add_flag("Costa Rica", colors= [("blue",1/6),("white",1/6),("red",2/6),("white",1/6), ("blue",1/6)], ratio=3/5, horizontal=False)
 registry.add_flag("Russia", colors=[("white", 1/3), ("blue", 1/3), ("red", 1/3)], ratio=2/3, horizontal=False)
-
-registry.add_flag("Europe", callback=europe_flag)
 
 
 window = Window(1800, 900, "Flags TP")

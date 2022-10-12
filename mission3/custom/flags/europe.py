@@ -9,6 +9,8 @@ def europe_flag(config: UIConfig, artist: Artist):
     star_angle_number = 5
     star_ray = config.flagSize/5
     ratio = 2/3
+
+    
     width = config.flagSize
     height = config.flagSize * ratio
     artist.draw_rectangle(width, -height,"blue")
