@@ -21,6 +21,11 @@ a = "vrai" if condition else "faux"
 
 Cela mettra "vrai" dans a si la condition est respectée, sinon "faux"
 
+Une version plus propre du code (Avec de la POO) et divisée en plusieurs fichiers est disponible a cette adresse:
+https://github.com/Kaporos/LEPL1401_TP/tree/main/mission3
+
+Cette version est également plus complete (+ de drapeaux disponibles, ... ) car plus facile a étendre grâce a la POO !
+
 """
 
 import tkinter as tk
