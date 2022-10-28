@@ -124,8 +124,8 @@ def sum(assitant: Assistant, args, show=True):
 def rick():
     u = requests.get("https://theo.daron.be/dat.json")
     data = json.loads(u.text)
-    clear_screen()
     for x in data:
+        clear_screen()
         print(x)
         time.sleep(1/5)
 
