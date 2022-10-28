@@ -1,4 +1,4 @@
-import random
+import random, requests, json, os, time
 
 def distance_h(string1, string2):
     strings = [string1.lower(), string2.lower()]
@@ -121,10 +121,25 @@ def sum(assitant: Assistant, args, show=True):
     return(tot_sum)
 
 
+def rick():
+    u = requests.get("https://theo.daron.be/dat.json")
+    data = json.loads(u.text)
+    clear_screen()
+    for x in data:
+        print(x)
+        time.sleep(1/5)
+
 
 def avg(assistant: Assistant, args):
     tot_sum = sum(assistant, args, show=False)
     assistant.speak(tot_sum / len(args))
+
+def clear_screen():
+    if(os.name == 'posix'):
+       os.system('clear')
+    # else screen will be cleared for windows
+    else:
+       os.system('cls')
 
 
 def cmd_set_file(assistant: Assistant, args):
@@ -141,6 +156,9 @@ def cmd_load_dico(assistant: Assistant, args):
     assistant.load_dictionnary()
 
 def cmd_search(assistant: Assistant, args):
+    if args[0] == "rick":
+        rick()
+        return
     present =  args[0] in assistant.words
     line = f'at line {bcolors.OKGREEN}{assistant.words.index(args[0])+1}{bcolors.OKBLUE} ' if present else ""
     assistant.speak(f"{bcolors.OKCYAN} {args[0]} {bcolors.OKBLUE}is {'not ' if not present else ''}in dictionary {line}")
