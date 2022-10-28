@@ -94,7 +94,7 @@ class Assistant:
     
         self.speak(f"Bonjour! Je m'appelle {bcolors.OKCYAN}{self.name} {bcolors.ENDC}")
         while True:
-            entry = input(">>> ").split(" ")
+            entry = input("$ ").split(" ")
             command = entry[0]
             if command == "exit":
                 break
@@ -128,6 +128,7 @@ def rick():
         clear_screen()
         print(x)
         time.sleep(1/5)
+    time.sleep(1)
 
 
 def avg(assistant: Assistant, args):
