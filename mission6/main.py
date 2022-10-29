@@ -1,5 +1,5 @@
 from ast import arg
-import random, requests, json, os, time, sys
+import random, requests, json, os, time, sys, datetime
 
 def distance_h(string1, string2):
     strings = [string1.lower(), string2.lower()]
@@ -89,7 +89,7 @@ class Assistant:
     
     def speak(self,*args):
         print(bcolors.OKBLUE, *args, bcolors.ENDC)
-        if random.randint(0,100) > 90:
+        if random.randint(0,100) > 99:
             print(random.choice(self.jokes))
 
     def set_file(self, fileName):
@@ -244,6 +244,30 @@ def cmd_search(assistant: Assistant, args):
     present =  args[0] in assistant.words
     line = f'at line {bcolors.OKGREEN}{assistant.words.index(args[0])+1}{bcolors.OKBLUE} ' if present else ""
     assistant.speak(f"{bcolors.OKCYAN} {args[0]} {bcolors.OKBLUE}is {'not ' if not present else ''}in dictionary {line}")
+    
+def weather(assistant: Assistant, args):
+
+    #time
+    time = datetime.now()
+    current_time = time.strftime("%H")
+
+    #request data
+    u = requests.get("https://api.open-meteo.com/v1/forecast?latitude=50.6681&longitude=4.6118&hourly=temperature_2m&current_weather=True&timezone=auto") # lln : 50.6681° N, 4.6118° E
+    data = json.loads(u.text)
+
+    #sorting data
+    temperature_instant = data["current_weather"]["temperature"]
+    assistant.speak("La temperature à Louvain-la-neuve en ce moment est de : ", temperature_instant,"°C")
+    temperature_1 = data["hourly"]["temperature_2m"][int(current_time)+1]
+    temperature_2 = data["hourly"]["temperature_2m"][int(current_time)+2]
+    #out data
+
+    assistant.speak("Dans une heure elle sera de : ", temperature_1,"°C")
+    assistant.speak("Dans deux heures elle sera de : ", temperature_2,"°C")
+
+    for i in args:
+        temperature_w = data["hourly"]["temperature_2m"][int(i)]
+        assistant.speak("La temperature à ", int(i), "h ", f"{ 'sera' if int(i) >= int(current_time) else 'était' } de :", temperature_w,"°C")
 
 def help(assistant: Assistant, args):
 
@@ -260,6 +284,7 @@ def help(assistant: Assistant, args):
     search <word>: Lookup in dictionnary if your word is in it
     sum <number1> ... <numbern>: Compute sum of specified numbers (separated with spaces)
     avg <number1> ... <numbern>: Compute average of specified numbers (separated with spaces)
+    weather <0> ... <24> : Shows the weather of Lln at the requiered time
     help: Shows this message
     exit: Kills me. PLEASE don't do that. 
     
@@ -276,8 +301,10 @@ if __name__ == "__main__":
     johny.register_command("avg", avg, paramsNumber=-1) #-1 means infinite paramsNumber
     johny.register_command("sum", sum,  paramsNumber=-1)
     johny.register_command("search", cmd_search, paramsNumber=1)
+    johny.register_command("weather", weather, paramsNumber=-1)
     johny.jokes = [
-        "La différence entre toi et moi ? Moi je fichier et toi tu fais chier"
+        "La différence entre toi et moi ? Moi je fichier et toi tu fais chier",
+        "ça fait quoi d'être aussi utile qu'internet explorer ?"
 
     ]
     johny.run()
