@@ -1,5 +1,8 @@
 from ast import arg
-import random, requests, json, os, time, sys
+try : import random, requests, json, os, time, sys
+except : 
+    print ("afin de beneficier de toutes mes capacités veuillez intaller le module requests")
+    import random, json, os, time, sys
 
 def distance_h(string1, string2):
     strings = [string1.lower(), string2.lower()]
