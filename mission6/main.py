@@ -1,4 +1,5 @@
-import random, requests, json, os, time
+from ast import arg
+import random, requests, json, os, time, sys
 
 def distance_h(string1, string2):
     strings = [string1.lower(), string2.lower()]
@@ -9,6 +10,28 @@ def distance_h(string1, string2):
         d += 0 if string2[index] == x else 1
     
     return d
+
+def _find_getch():
+    try:
+        import termios
+    except ImportError:
+        # Non-POSIX. Return msvcrt's (Windows') getch.
+        import msvcrt
+        return msvcrt.getch
+
+    # POSIX system. Create and return a getch that manipulates the tty.
+    import sys, tty
+    def _getch():
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
+
+    return _getch
 
 class bcolors:
     HEADER = '\033[95m'
@@ -33,9 +56,9 @@ class Assistant:
         self.jokes = []
         self.register_command("exit", None) #For fuzzy search
 
-    def register_command(self, commandName, command):
+    def register_command(self, commandName, command, paramsNumber=0):
         
-        self.commands[commandName] = command
+        self.commands[commandName] = (paramsNumber, command)
 
 
 
@@ -43,7 +66,10 @@ class Assistant:
         
         if not commandName in self.commands.keys():
             return self.not_found(commandName)
-        cmd = self.commands[commandName]
+        argsNumber, cmd = self.commands[commandName]
+        if len(args) != argsNumber and argsNumber != -1:
+            print(f"{bcolors.FAIL}{commandName} should take {argsNumber} arguments.{bcolors.ENDC}")
+            return
         try:
             cmd(self, args)
         except Exception as e:
@@ -89,12 +115,67 @@ class Assistant:
             self.words = tmp_words
         self.speak("Dictionary loaded !")
 
+    def get_user_input(self, startLine):
+        max_length = 0
+        input = [""]
+        input_index = 0
+        getch = _find_getch()
+        sys.stdout.write('\r'+ startLine)
+        while True:
+            char = getch().decode() 
+            append = True
+            if char == '\x03': #CTRL+C
+                break 
+            if char == '\x08': #Backspace
+                if len(input[input_index]) == 0:
+                    if input_index == 0:
+                        continue
+                    input_index -= 1
+                    input = input[:-1]
+                input[input_index] = input[input_index][:-1]
+                append = False
+            if char == '\r' or char == '\n':
+                print()
+                return input
+            if char == " ":
+                input_index += 1
+                input.append("")
+                append = False
+            if append:
+                input[input_index] += char
+            length = len(" ".join(input))
+            if length > max_length:
+                max_length = length
             
+            validCommand =  input[0] in self.commands.keys()
+            color = bcolors.OKCYAN if validCommand else bcolors.FAIL
+            
+            cmdName = f'{color}{input[0]}{bcolors.ENDC}'
+
+            argsPart = ""
+            if not validCommand:
+                argsPart = " ".join(input[1:])
+            else:
+                argsNumber = self.commands[input[0]][0]
+                if argsNumber == -1:
+                    argsNumber = len(input)
+                blue = " ".join(input[1:argsNumber+1])
+                red = " ".join(input[argsNumber+1:])
+                argsPart = f'{bcolors.OKBLUE}{blue}{bcolors.ENDC}{" " if len(input) > argsNumber+1 and argsNumber > 0 else ""}{bcolors.FAIL}{red}{bcolors.ENDC}'
+
+            line = '{startLine}{cmd}{space}{args}{whitespaces}'.format(
+                startLine = startLine,
+                cmd = cmdName,
+                space = " " if len(input) > 1 else "",
+                args= argsPart,
+                whitespaces = " "*(max_length - length)
+            )
+            sys.stdout.write('\r'+ line)
     def run(self):
     
         self.speak(f"Bonjour! Je m'appelle {bcolors.OKCYAN}{self.name} {bcolors.ENDC}")
         while True:
-            entry = input("$ ").split(" ")
+            entry = self.get_user_input("--> ")
             command = entry[0]
             if command == "exit":
                 break
@@ -188,13 +269,13 @@ def help(assistant: Assistant, args):
 if __name__ == "__main__":
     johny = Assistant("Johny")
     johny.register_command("hello", hello)
-    johny.register_command("file", cmd_set_file)
+    johny.register_command("file", cmd_set_file, paramsNumber=1)
     johny.register_command("info", file_info)
     johny.register_command("help", help)
     johny.register_command("dictionary", cmd_load_dico)
-    johny.register_command("avg", avg)
-    johny.register_command("sum", sum)
-    johny.register_command("search", cmd_search)
+    johny.register_command("avg", avg, paramsNumber=-1) #-1 means infinite paramsNumber
+    johny.register_command("sum", sum,  paramsNumber=-1)
+    johny.register_command("search", cmd_search, paramsNumber=1)
     johny.jokes = [
         "La différence entre toi et moi ? Moi je fichier et toi tu fais chier"
 
