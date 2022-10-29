@@ -17,7 +17,7 @@ def _find_getch():
     except ImportError:
         # Non-POSIX. Return msvcrt's (Windows') getch.
         import msvcrt
-        return msvcrt.getch
+        return lambda : msvcrt.getch().decode()
 
     # POSIX system. Create and return a getch that manipulates the tty.
     import sys, tty
@@ -122,11 +122,11 @@ class Assistant:
         getch = _find_getch()
         sys.stdout.write('\r'+ startLine)
         while True:
-            char = getch().decode() 
+            char = getch()
             append = True
             if char == '\x03': #CTRL+C
                 break 
-            if char == '\x08': #Backspace
+            if char == '\x08' or char == '\x7f': #Backspace
                 if len(input[input_index]) == 0:
                     if input_index == 0:
                         continue
