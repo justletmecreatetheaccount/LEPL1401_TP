@@ -40,16 +40,15 @@ def _find_getch():
     return _getch
 
 class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKCYAN = '\033[96m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
     ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
 
+def color(text, bcolor, end=bcolors.ENDC):
+    return f"{bcolor}{text}{end}"
 
 class Assistant:
     def __init__(self, name):
@@ -60,11 +59,11 @@ class Assistant:
         self.fileChars = 0
         self.name = name
         self.jokes = []
-        self.register_command("exit", None) #For fuzzy search
+        self.register_command("exit", None, description="Kills me. Please don't do that") #For fuzzy search
 
-    def register_command(self, commandName, command, paramsNumber=0):
+    def register_command(self, commandName, command, paramsNumber=0, description=""):
         
-        self.commands[commandName] = (paramsNumber, command)
+        self.commands[commandName] = (paramsNumber, command, description)
 
 
 
@@ -72,9 +71,9 @@ class Assistant:
         
         if not commandName in self.commands.keys():
             return self.not_found(commandName)
-        argsNumber, cmd = self.commands[commandName]
+        argsNumber, cmd, desc = self.commands[commandName]
         if len(args) != argsNumber and argsNumber != -1:
-            print(f"{bcolors.FAIL}{commandName} should take {argsNumber} arguments.{bcolors.ENDC}")
+            print(color(f"{commandName} should take {argsNumber} arguments.", bcolors.RED))
             return
         try:
             cmd(self, args)
@@ -90,11 +89,11 @@ class Assistant:
             if distance <= bestMatchV:
                 bestMatch = c
                 bestMatchV = distance
-        suggestion = f"Did you mean {bcolors.OKCYAN}{bestMatch}{bcolors.OKBLUE}? " if len(bestMatch) > 0 and bestMatchV < 3 else ""
+        suggestion = f"Did you mean {color(bestMatch, bcolors.CYAN, end=bcolors.BLUE)}? " if len(bestMatch) > 0 and bestMatchV < 3 else ""
         self.speak(f"{suggestion}To see all commands, type 'help' ")
     
     def speak(self,*args):
-        print(bcolors.OKBLUE, *args, bcolors.ENDC)
+        print(bcolors.BLUE, *args, bcolors.ENDC)
         if random.randint(0,100) > 99:
             print(random.choice(self.jokes))
 
@@ -128,7 +127,10 @@ class Assistant:
         getch = _find_getch()
         sys.stdout.write('\r'+ startLine)
         while True:
-            char = getch()
+            try:
+                char = getch()
+            except UnicodeDecodeError:
+                continue
             append = True
             if char == '\x03': #CTRL+C
                 break 
@@ -154,9 +156,9 @@ class Assistant:
                 max_length = length
             
             validCommand =  input[0] in self.commands.keys()
-            color = bcolors.OKCYAN if validCommand else bcolors.FAIL
+            t_color = bcolors.CYAN if validCommand else bcolors.RED
             
-            cmdName = f'{color}{input[0]}{bcolors.ENDC}'
+            cmdName = color(input[0], t_color)
 
             argsPart = ""
             if not validCommand:
@@ -167,7 +169,7 @@ class Assistant:
                     argsNumber = len(input)
                 blue = " ".join(input[1:argsNumber+1])
                 red = " ".join(input[argsNumber+1:])
-                argsPart = f'{bcolors.OKBLUE}{blue}{bcolors.ENDC}{" " if len(input) > argsNumber+1 and argsNumber > 0 else ""}{bcolors.FAIL}{red}{bcolors.ENDC}'
+                argsPart = f'{color(blue, bcolors.BLUE)}{" " if len(input) > argsNumber+1 and argsNumber > 0 else ""}{color(red, bcolors.RED)}'
 
             line = '{startLine}{cmd}{space}{args}{whitespaces}'.format(
                 startLine = startLine,
@@ -179,7 +181,7 @@ class Assistant:
             sys.stdout.write('\r'+ line)
     def run(self):
     
-        self.speak(f"Bonjour! Je m'appelle {bcolors.OKCYAN}{self.name} {bcolors.ENDC}")
+        self.speak(f"Bonjour! Je m'appelle {color(self.name, bcolors.CYAN)}")
         while True:
             entry = self.get_user_input("--> ")
             command = entry[0]
@@ -189,7 +191,7 @@ class Assistant:
             self.execute_command(command, args)
             
             
-        print(f"{bcolors.WARNING}Goodbye !{bcolors.ENDC}")
+        print(color("Goodbye.", bcolors.YELLOW))
 
 #Commands code
 
@@ -237,8 +239,9 @@ def cmd_set_file(assistant: Assistant, args):
 
 def file_info(assistant: Assistant, args):
 
-    assistant.speak(f"""{bcolors.OKCYAN} Lines: {bcolors.OKBLUE} {assistant.fileLines}
- {bcolors.OKCYAN} Chars: {bcolors.OKBLUE} {assistant.fileChars}""")
+     assistant.speak(f"""{color('Lines', bcolors.CYAN, end=bcolors.BLUE)} {assistant.fileLines}
+ {color('Chars', bcolors.CYAN, end=bcolors.BLUE)} {assistant.fileChars}""")
+
 
 def cmd_load_dico(assistant: Assistant, args):
     assistant.load_dictionnary()
@@ -259,37 +262,35 @@ def weather(assistant: Assistant, args):
 
 def help(assistant: Assistant, args):
 
+    descriptions = []
+    for x in assistant.commands.keys():
+        descriptions.append( f"{color(x, bcolors.CYAN)}: {assistant.commands[x][2]}")
+    description = "\n    ".join(descriptions)
     assistant.speak(f"""
     Welcome to this guide !
     My name is {assistant.name} and i'm an useless bot :)
     Being useless does not mean that i can't do anything of course.
     
     Here is how you can interact with me:
-    
-    file <name>: Specify the file i'm currently looking at.
-    info: Show informations about the file you specified (lines number and chars number)
-    dictionary: Load specified file as a dictionnary
-    search <word>: Lookup in dictionnary if your word is in it
-    sum <number1> ... <numbern>: Compute sum of specified numbers (separated with spaces)
-    avg <number1> ... <numbern>: Compute average of specified numbers (separated with spaces)
-    weather <0> ... <24> : Shows the weather of Lln at the requiered time
-    help: Shows this message
-    exit: Kills me. PLEASE don't do that. 
-    
+
+    {description}
+
+
     """)
+
     
 
 if __name__ == "__main__":
     johny = Assistant("Johny")
-    johny.register_command("hello", hello)
-    johny.register_command("file", cmd_set_file, paramsNumber=1)
-    johny.register_command("info", file_info)
-    johny.register_command("help", help)
-    johny.register_command("dictionary", cmd_load_dico)
-    johny.register_command("avg", avg, paramsNumber=-1) #-1 means infinite paramsNumber
-    johny.register_command("sum", sum,  paramsNumber=-1)
-    johny.register_command("search", cmd_search, paramsNumber=1)
-    johny.register_command("weather", weather, paramsNumber=-1)
+    johny.register_command("hello", hello, description="A simple test command that prints Hello World")
+    johny.register_command("file", cmd_set_file, paramsNumber=1, description="Command that specify the file the program is looking at")
+    johny.register_command("info", file_info, description="Show informations (lines and chars numbers) about selected file")
+    johny.register_command("help", help, description="Show this message")
+    johny.register_command("dictionary", cmd_load_dico, description="Load the file as a dictionary (used by search cmd)")
+    johny.register_command("avg", avg, paramsNumber=-1, description="avg <nbr_1>...<nbr_n> --> compute the average value of args") #-1 means infinite paramsNumber
+    johny.register_command("sum", sum,  paramsNumber=-1, description="sum <nbr_1>...<nbr_n> --> compute the sum of args")
+    johny.register_command("search", cmd_search, paramsNumber=1, description="Search a word inside the dictionary")
+    johny.register_command("weather", weather, paramsNumber=-1, description="Get the weather, specify a city if you want, or it'll be based on your IP")
     johny.jokes = [
         "La différence entre toi et moi ? Moi je fichier et toi tu fais chier",
         "ça fait quoi d'être aussi utile qu'internet explorer ?"
