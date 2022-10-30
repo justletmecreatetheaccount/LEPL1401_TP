@@ -8,6 +8,9 @@ except :
 
 
 def distance_h(string1, string2):
+    """
+    This function computes distance between two strings, usefull for fuzzy command search (sim --> sum)
+    """
     strings = [string1.lower(), string2.lower()]
     strings.sort(key=lambda a: len(a))
     string1, string2 = strings
@@ -18,6 +21,12 @@ def distance_h(string1, string2):
     return d
 
 def _find_getch():
+    """
+    This function return a function getch, this function is like input in python, but instead of waiting user to type a line then enter, it'll return any char the user
+    will type.
+
+    This _find_getch is necessary because getch is not the same on linux and windows...
+    """
     try:
         import termios
     except ImportError:
@@ -40,6 +49,9 @@ def _find_getch():
     return _getch
 
 class bcolors:
+    """
+    Colors special chars for terminal
+    """
     BLUE = '\033[94m'
     CYAN = '\033[96m'
     GREEN = '\033[92m'
@@ -48,6 +60,9 @@ class bcolors:
     ENDC = '\033[0m'
 
 def color(text, bcolor, end=bcolors.ENDC):
+    """
+    Will return a string with colored text
+    """
     return f"{bcolor}{text}{end}"
 
 class Assistant:
