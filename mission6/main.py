@@ -1,7 +1,11 @@
-try : import random, requests, json, os, time, sys
+import random, json, os, time, sys
+from datetime import datetime
+try : import requests
 except : 
     print ("afin de beneficier de toutes mes capacités veuillez intaller le module requests")
-    import random, json, os, time, sys
+    sys.exit(1)
+    
+
 
 def distance_h(string1, string2):
     strings = [string1.lower(), string2.lower()]
@@ -248,28 +252,10 @@ def cmd_search(assistant: Assistant, args):
     assistant.speak(f"{bcolors.OKCYAN} {args[0]} {bcolors.OKBLUE}is {'not ' if not present else ''}in dictionary {line}")
     
 def weather(assistant: Assistant, args):
+    url = f"https://wttr.in{'/'+' '.join(args) if len(args) > 0 else ''}"
+    u = requests.get(url)
+    assistant.speak(u.text)
 
-    #time
-    time = datetime.now()
-    current_time = time.strftime("%H")
-
-    #request data
-    u = requests.get("https://api.open-meteo.com/v1/forecast?latitude=50.6681&longitude=4.6118&hourly=temperature_2m&current_weather=True&timezone=auto") # lln : 50.6681° N, 4.6118° E
-    data = json.loads(u.text)
-
-    #sorting data
-    temperature_instant = data["current_weather"]["temperature"]
-    assistant.speak("La temperature à Louvain-la-neuve en ce moment est de : ", temperature_instant,"°C")
-    temperature_1 = data["hourly"]["temperature_2m"][int(current_time)+1]
-    temperature_2 = data["hourly"]["temperature_2m"][int(current_time)+2]
-    #out data
-
-    assistant.speak("Dans une heure elle sera de : ", temperature_1,"°C")
-    assistant.speak("Dans deux heures elle sera de : ", temperature_2,"°C")
-
-    for i in args:
-        temperature_w = data["hourly"]["temperature_2m"][int(i)]
-        assistant.speak("La temperature à ", int(i), "h ", f"{ 'sera' if int(i) >= int(current_time) else 'était' } de :", temperature_w,"°C")
 
 def help(assistant: Assistant, args):
 
