@@ -6,6 +6,8 @@ except Exception as e:
     print(e)
     sys.exit(1)
 
+NEWS_API_KEY="a3cfdcbd372a498b982bd2fcde1592b6"
+
 class TerminalLine:
     """
     This class is usefull to edit a printed line to the terminal.
@@ -77,6 +79,7 @@ class bcolors:
     YELLOW = '\033[93m'
     RED = '\033[91m'
     ENDC = '\033[0m'
+    BOLD = '\033[1m'
 
 def color(text, bcolor, end=bcolors.ENDC):
     """
@@ -285,10 +288,30 @@ def cmd_search(assistant: Assistant, args):
     assistant.speak(f"{bcolors.OKCYAN} {args[0]} {bcolors.OKBLUE}is {'not ' if not present else ''}in dictionary {line}")
     
 def weather(assistant: Assistant, args):
-    url = f"https://wttr.in{'/'+' '.join(args) if len(args) > 0 else ''}"
+    url = f"https://wttr.in/{' '.join(args) if len(args) > 0 else ''}"
     u = requests.get(url)
     assistant.speak(u.text)
 
+def news(assistant: Assistant, args):
+    dat = None
+    if len(args)>0:
+        dat = requests.get(f"https://newsapi.org/v2/everything?q={' '.join(args)}&apiKey="+NEWS_API_KEY)
+    else:
+        dat = requests.get("https://newsapi.org/v2/top-headlines?country=fr&apiKey="+NEWS_API_KEY)
+    articles = json.loads(dat.text)["articles"][:5]
+    for article in articles:
+        source = article["source"]["name"]
+        author = article["author"]
+        title = article["title"]
+        desc = article["description"]
+        url = article["url"]
+        text = f"""
+{color(color(title, bcolors.RED), bcolors.BOLD)}   
+{color(source, bcolors.YELLOW)} - {color(author, bcolors.CYAN)} - {url}
+{desc}
+        """
+        assistant.speak(text)
+    
 
 
 def help(assistant: Assistant, args):
@@ -316,7 +339,7 @@ Here is how you can interact with me:
     
 
 if __name__ == "__main__":
-    assistant = Assistant(random.choice(["Mallory","Alfred","Neo","Philibert"]))
+    assistant = Assistant(random.choice(["Mallory","Alfred","Neo","Philibert","Tchoupi"]))
     assistant.register_command("hello", hello, description="A simple test command that prints Hello World.")
     assistant.register_command("file", cmd_set_file, paramsNumber=1, description="Command that specify the file the program is looking at.")
     assistant.register_command("info", file_info, description="Show informations (lines and chars numbers) about selected file.")
@@ -327,5 +350,6 @@ if __name__ == "__main__":
     assistant.register_command("search", cmd_search, paramsNumber=1, description="Search a word inside the dictionary.")
     assistant.register_command("weather", weather, paramsNumber=-1, description="Get the weather, specify a city if you want, or it'll be based on your IP.")
     assistant.register_command("clear", lambda assistant,args: clear_screen(), paramsNumber=0, description="Clear the screen.")
+    assistant.register_command("news", news, paramsNumber=-1, description="A command to get worldwide news. You can specify args to search for specific topics.")
     assistant.run()
 
