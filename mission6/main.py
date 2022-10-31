@@ -4,7 +4,25 @@ try : import requests
 except : 
     print ("afin de beneficier de toutes mes capacités veuillez intaller le module requests")
     sys.exit(1)
-    
+
+class TerminalLine:
+    """
+    This class is usefull to edit a printed line to the terminal.
+    Usage:
+        TerminalLine.new_line(content) --> Will print content
+        TerminalLine.set_line_content(content) --> Will edit the last printed content with content
+    """
+    length = 0
+    def new_line(content):
+        sys.stdout.write(content)
+        sys.stdout.flush()
+        TerminalLine.length = len(content)
+    def set_line_content(content):
+        sys.stdout.write('\r'+TerminalLine.length * " ") #Erase the line before writing on it
+        sys.stdout.write('\r'+ content)
+        TerminalLine.length = len(content)
+
+
 
 
 def distance_h(string1, string2):
@@ -73,7 +91,6 @@ class Assistant:
         self.fileLines = 0
         self.fileChars = 0
         self.name = name
-        self.jokes = []
         self.register_command("exit", None, description="Kills me. Please don't do that") #For fuzzy search
 
     def register_command(self, commandName, command, paramsNumber=0, description=""):
@@ -93,7 +110,7 @@ class Assistant:
         try:
             cmd(self, args)
         except Exception as e:
-            print(f"An error occured while executing {cmd}:", e)
+            print(f"An error occured while executing {cmd}:", color(e, bcolors.RED))
             
     
     def not_found(self, command):
@@ -109,8 +126,6 @@ class Assistant:
     
     def speak(self,*args):
         print(bcolors.BLUE, *args, bcolors.ENDC)
-        if random.randint(0,100) > 99:
-            print(random.choice(self.jokes))
 
     def set_file(self, fileName):
         
@@ -140,7 +155,7 @@ class Assistant:
         input = [""]
         input_index = 0
         getch = _find_getch()
-        sys.stdout.write('\r'+ startLine)
+        TerminalLine.new_line(startLine)
         while True:
             try:
                 char = getch()
@@ -159,7 +174,7 @@ class Assistant:
                 append = False
             if char == '\r' or char == '\n':
                 print()
-                return input
+                return [x for x in input if len(x) > 0]
             if char == " ":
                 input_index += 1
                 input.append("")
@@ -192,11 +207,10 @@ class Assistant:
                 space = " " if len(input) > 1 else "",
                 args= argsPart,
             )
-            sys.stdout.write('\r'+len(line)*" " +  " "*(max_length - length))
-            sys.stdout.write('\r'+ line)
+            TerminalLine.set_line_content(line)
     def run(self):
-    
-        self.speak(f"Bonjour! Je m'appelle {color(self.name, bcolors.CYAN)}")
+        self.speak(f" Hi ! My name is {color(self.name, bcolors.YELLOW, end=bcolors.BLUE)}.")
+        self.speak(f" Don't hesitate to run {color('help', bcolors.CYAN, end=bcolors.BLUE)} to know what i'm capable of !")
         while True:
             entry = self.get_user_input("--> ")
             command = entry[0]
@@ -231,7 +245,7 @@ def rick():
     for x in data:
         clear_screen()
         print(x)
-        time.sleep(1/5)
+        time.sleep(1/7)
     time.sleep(1)
 
 
@@ -275,41 +289,42 @@ def weather(assistant: Assistant, args):
     assistant.speak(u.text)
 
 
+
 def help(assistant: Assistant, args):
 
     descriptions = []
     for x in assistant.commands.keys():
-        descriptions.append( f"{color(x, bcolors.CYAN)}: {assistant.commands[x][2]}")
-    description = "\n    ".join(descriptions)
+        args = assistant.commands[x][0] or 0
+        desc = assistant.commands[x][2]
+        descriptions.append("{commandName}: {commandDescription} {args}".format(
+            commandName = color(x, bcolors.CYAN),
+            commandDescription = desc,
+            args= color(f"({args} arg{'s' if args > 1 else ''})", bcolors.RED) if args > 0 else ("" if args == 0 else color("(Any args number you want)", bcolors.RED))
+        ))
+    description = "\n".join(descriptions)
     assistant.speak(f"""
-    Welcome to this guide !
-    My name is {assistant.name} and i'm an useless bot :)
-    Being useless does not mean that i can't do anything of course.
+Welcome to this guide !
+My name is {color(assistant.name, bcolors.YELLOW, end=bcolors.BLUE)} and i'm an useless bot :)
+Being useless does not mean that i can't do anything, of course.
     
-    Here is how you can interact with me:
+Here is how you can interact with me:
 
-    {description}
-
-
+{description}
     """)
 
     
 
 if __name__ == "__main__":
-    johny = Assistant("Johny")
-    johny.register_command("hello", hello, description="A simple test command that prints Hello World")
-    johny.register_command("file", cmd_set_file, paramsNumber=1, description="Command that specify the file the program is looking at")
-    johny.register_command("info", file_info, description="Show informations (lines and chars numbers) about selected file")
-    johny.register_command("help", help, description="Show this message")
-    johny.register_command("dictionary", cmd_load_dico, description="Load the file as a dictionary (used by search cmd)")
-    johny.register_command("avg", avg, paramsNumber=-1, description="avg <nbr_1>...<nbr_n> --> compute the average value of args") #-1 means infinite paramsNumber
-    johny.register_command("sum", sum,  paramsNumber=-1, description="sum <nbr_1>...<nbr_n> --> compute the sum of args")
-    johny.register_command("search", cmd_search, paramsNumber=1, description="Search a word inside the dictionary")
-    johny.register_command("weather", weather, paramsNumber=-1, description="Get the weather, specify a city if you want, or it'll be based on your IP")
-    johny.jokes = [
-        "La différence entre toi et moi ? Moi je fichier et toi tu fais chier",
-        "ça fait quoi d'être aussi utile qu'internet explorer ?"
-
-    ]
-    johny.run()
+    assistant = Assistant(random.choice(["Mallory","Alfred","Neo","Philibert"]))
+    assistant.register_command("hello", hello, description="A simple test command that prints Hello World.")
+    assistant.register_command("file", cmd_set_file, paramsNumber=1, description="Command that specify the file the program is looking at.")
+    assistant.register_command("info", file_info, description="Show informations (lines and chars numbers) about selected file.")
+    assistant.register_command("help", help, description="Show this message.")
+    assistant.register_command("dictionary", cmd_load_dico, description="Load the file as a dictionary (used by search cmd).")
+    assistant.register_command("avg", avg, paramsNumber=-1, description="Compute the average value of args.") #-1 means infinite paramsNumber
+    assistant.register_command("sum", sum,  paramsNumber=-1, description="Compute the sum of args.")
+    assistant.register_command("search", cmd_search, paramsNumber=1, description="Search a word inside the dictionary.")
+    assistant.register_command("weather", weather, paramsNumber=-1, description="Get the weather, specify a city if you want, or it'll be based on your IP.")
+    assistant.register_command("clear", lambda assistant,args: clear_screen(), paramsNumber=0, description="Clear the screen.")
+    assistant.run()
 
