@@ -186,13 +186,13 @@ class Assistant:
                 red = " ".join(input[argsNumber+1:])
                 argsPart = f'{color(blue, bcolors.BLUE)}{" " if len(input) > argsNumber+1 and argsNumber > 0 else ""}{color(red, bcolors.RED)}'
 
-            line = '{startLine}{cmd}{space}{args}{whitespaces}'.format(
+            line = '{startLine}{cmd}{space}{args}'.format(
                 startLine = startLine,
                 cmd = cmdName,
                 space = " " if len(input) > 1 else "",
                 args= argsPart,
-                whitespaces = " "*(max_length - length)
             )
+            sys.stdout.write('\r'+len(line)*" " +  " "*(max_length - length))
             sys.stdout.write('\r'+ line)
     def run(self):
     
