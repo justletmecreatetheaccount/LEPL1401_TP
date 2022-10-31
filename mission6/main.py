@@ -1,8 +1,9 @@
 import random, json, os, time, sys
-from datetime import datetime
 try : import requests
-except : 
-    print ("afin de beneficier de toutes mes capacités veuillez intaller le module requests")
+except Exception as e: 
+    print ("This message should be replaced by a requirements.txt but we couldn't give you one, so here is an ugly message instead.")
+    print("You need 'requests' module installed ")
+    print(e)
     sys.exit(1)
 
 class TerminalLine:
@@ -209,8 +210,8 @@ class Assistant:
             )
             TerminalLine.set_line_content(line)
     def run(self):
-        self.speak(f" Hi ! My name is {color(self.name, bcolors.YELLOW, end=bcolors.BLUE)}.")
-        self.speak(f" Don't hesitate to run {color('help', bcolors.CYAN, end=bcolors.BLUE)} to know what i'm capable of !")
+        self.speak(f"Hi ! My name is {color(self.name, bcolors.YELLOW, end=bcolors.BLUE)}.")
+        self.speak(f"Don't hesitate to run {color('help', bcolors.CYAN, end=bcolors.BLUE)} to know what i'm capable of !")
         while True:
             entry = self.get_user_input("--> ")
             command = entry[0]
