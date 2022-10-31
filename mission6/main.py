@@ -130,8 +130,8 @@ class Assistant:
         suggestion = f"Did you mean {color(bestMatch, bcolors.CYAN, end=bcolors.BLUE)}? " if len(bestMatch) > 0 and bestMatchV < 3 else ""
         self.speak(f"{suggestion}To see all commands, type 'help' ")
     
-    def speak(self,*args):
-        print(bcolors.BLUE, *args, bcolors.ENDC)
+    def speak(self,text):
+        print(bcolors.BLUE, text, bcolors.ENDC)
 
     def set_file(self, fileName):
         
@@ -364,7 +364,7 @@ if __name__ == "__main__":
     assistant.register_command("file", cmd_set_file, paramsNumber=1, description="Command that specify the file the program is looking at.")
     assistant.register_command("info", file_info, description="Show informations (lines and chars numbers) about selected file.")
     assistant.register_command("help", help, description="Show this message.")
-    assistant.register_command("dictionary", cmd_load_dico, description="Load the file as a dictionary (used by search cmd).")
+    assistant.register_command("words", cmd_load_dico, description="Load the file as a word list (used by search cmd).")
     assistant.register_command("avg", avg, paramsNumber=-1, description="Compute the average value of args.") #-1 means infinite paramsNumber
     assistant.register_command("sum", sum,  paramsNumber=-1, description="Compute the sum of args.")
     assistant.register_command("search", cmd_search, paramsNumber=1, description="Search a word inside the dictionary.")
