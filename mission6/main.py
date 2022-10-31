@@ -1,3 +1,4 @@
+from http.client import responses
 import random, json, os, time, sys
 try : import requests
 except Exception as e: 
@@ -7,6 +8,7 @@ except Exception as e:
     sys.exit(1)
 
 NEWS_API_KEY="a3cfdcbd372a498b982bd2fcde1592b6"
+TRANSLATE_API_KEY="8d9932ce-70a6-5a26-63ad-686a2e7dc067:fx"
 
 class TerminalLine:
     """
@@ -312,7 +314,25 @@ def news(assistant: Assistant, args):
         """
         assistant.speak(text)
     
+def translate(assistant: Assistant, args):
+    if len(args) < 3:
+        assistant.speak(color("Three args are needed !", bcolors.RED))
+        return
+    if not  (len(args[0]) == 2 and len(args[1]) == 2):
+        assistant.speak(color("The two first arguments have to be language code like en, fr, ..."))
+    headers = {
+    'Authorization': 'DeepL-Auth-Key '+TRANSLATE_API_KEY,
+    'Content-Type': 'application/x-www-form-urlencoded',
+    }
+    data = f'text={" ".join(args[2:])}&target_lang={args[1].upper()}&source_lang={args[0].upper()}'
 
+    response = requests.post('https://api-free.deepl.com/v2/translate', headers=headers, data=data)
+    try:
+        translations = json.loads(response.text)["translations"]
+    except KeyError:
+        assistant.speak("No translations found.")
+        return
+    assistant.speak(color(f'{translations[0]["text"]}', bcolors.YELLOW))
 
 def help(assistant: Assistant, args):
 
@@ -351,5 +371,6 @@ if __name__ == "__main__":
     assistant.register_command("weather", weather, paramsNumber=-1, description="Get the weather, specify a city if you want, or it'll be based on your IP.")
     assistant.register_command("clear", lambda assistant,args: clear_screen(), paramsNumber=0, description="Clear the screen.")
     assistant.register_command("news", news, paramsNumber=-1, description="A command to get worldwide news. You can specify args to search for specific topics.")
+    assistant.register_command("translate", translate, paramsNumber=-1, description="<from_lg> <to_lg> text --> Translate text from a language to another language. You have to put languages codes like en, fr, ru, ...")
     assistant.run()
 
