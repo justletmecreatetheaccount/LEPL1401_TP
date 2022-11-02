@@ -215,7 +215,8 @@ class Assistant:
                         continue
                     input_index -= 1
                     input = input[:-1]
-                input[input_index] = input[input_index][:-1]
+                else:
+                    input[input_index] = input[input_index][:-1]
                 append = False
 
             if char == '\r' or char == '\n': # Enter pressed
