@@ -7,9 +7,22 @@ except Exception as e:
     print(e)
     sys.exit(1)
 
+
+"""
+======
+Program variables
+======
+"""
 NEWS_API_KEY="a3cfdcbd372a498b982bd2fcde1592b6"
 TRANSLATE_API_KEY="8d9932ce-70a6-5a26-63ad-686a2e7dc067:fx"
 
+
+"""
+=====
+Utils (colors, terminal stuff)
+=====
+
+"""
 class TerminalLine:
     """
     This class is usefull to edit a printed line to the terminal.
@@ -27,9 +40,6 @@ class TerminalLine:
         sys.stdout.write('\r'+ content)
         TerminalLine.length = len(content)
 
-
-
-
 def distance_h(string1, string2):
     """
     This function computes distance between two strings, usefull for fuzzy command search (sim --> sum)
@@ -45,8 +55,7 @@ def distance_h(string1, string2):
 
 def _find_getch():
     """
-    This function return a function getch, this function is like input in python, but instead of waiting user to type a line then enter, it'll return any char the user
-    will type.
+    This function return a function getch, this function is like input in python, but instead of waiting user to type a line then enter, it'll wait and return next user CHAR type.
 
     This _find_getch is necessary because getch is not the same on linux and windows...
     """
@@ -89,6 +98,13 @@ def color(text, bcolor, end=bcolors.ENDC):
     """
     return f"{bcolor}{text}{end}"
 
+"""
+=====
+Principal assistant code
+=====
+
+"""
+
 class Assistant:
     def __init__(self, name):
         self.commands = {}
@@ -97,22 +113,30 @@ class Assistant:
         self.fileLines = 0
         self.fileChars = 0
         self.name = name
-        self.register_command("exit", None, description="Kills me. Please don't do that") #For fuzzy search
+        self.register_command("exit", None, description="Kills me. Please don't do that") #For fuzzy search. The exit behavior is in run()
 
     def register_command(self, commandName, command, paramsNumber=0, description=""):
-        
+        """
+        This function register a new command in the assistant.
+        """
         self.commands[commandName] = (paramsNumber, command, description)
 
 
 
     def execute_command(self, commandName, args):
-        
+
         if not commandName in self.commands.keys():
             return self.not_found(commandName)
-        argsNumber, cmd, desc = self.commands[commandName]
+
+        argsNumber, cmd, _ = self.commands[commandName]
+
         if len(args) != argsNumber and argsNumber != -1:
-            print(color(f"{commandName} should take {argsNumber} arguments.", bcolors.RED))
+            if argsNumber == 0:
+                print(color(f"{commandName} should not take any arguments.", bcolors.RED))
+            else:
+                print(color(f"{commandName} should take {argsNumber} arguments.", bcolors.RED))
             return
+
         try:
             cmd(self, args)
         except Exception as e:
@@ -120,6 +144,9 @@ class Assistant:
             
     
     def not_found(self, command):
+        """
+        Code executed when running invalid command like "sim" or "jakkabab"
+        """
         bestMatch = ""
         bestMatchV = 10
         for c in self.commands.keys():
@@ -127,14 +154,15 @@ class Assistant:
             if distance <= bestMatchV:
                 bestMatch = c
                 bestMatchV = distance
-        suggestion = f"Did you mean {color(bestMatch, bcolors.CYAN, end=bcolors.BLUE)}? " if len(bestMatch) > 0 and bestMatchV < 3 else ""
+        suggestion = ""
+        if len(bestMatch) > 0 and bestMatchV < 3:
+            suggestion = f"Did you mean {color(bestMatch, bcolors.CYAN, end=bcolors.BLUE)}? "
         self.speak(f"{suggestion}To see all commands, type 'help' ")
     
     def speak(self,text):
         print(bcolors.BLUE, text, bcolors.ENDC)
 
     def set_file(self, fileName):
-        
         with open(fileName) as f:
             content = f.read()
             self.fileChars = len(content)
@@ -149,7 +177,7 @@ class Assistant:
             for line in content:
                 tokens = line.split(",")
                 if len(tokens) > 2:
-                    print("Invalid dictionnary format")
+                    self.speak(f"{color(f'Invalid file format (file: {self.fileName})', bcolors.RED)}")
                     f.close()
                     return
                 tmp_words.append(tokens[0])
@@ -157,19 +185,31 @@ class Assistant:
         self.speak("Words loaded !")
 
     def get_user_input(self, startLine):
-        max_length = 0
-        input = [""]
+        """
+        The most complicated function of this file.
+        This function is charged of the user-prompt.
+
+        Args:
+        startLine: prompt format (prefix of user input) (string) 
+        """
+
+        input = [""] #Contain user input like [commandName, arg1, arg2, ...]
         input_index = 0
         getch = _find_getch()
         TerminalLine.new_line(startLine)
-        while True:
+
+        while True: #Wait for user to type chars
             try:
                 char = getch()
             except UnicodeDecodeError:
                 continue
+
             append = True
+
             if char == '\x03': #CTRL+C
-                break 
+                print()
+                return ["exit"] 
+
             if char == '\x08' or char == '\x7f': #Backspace
                 if len(input[input_index]) == 0:
                     if input_index == 0:
@@ -178,28 +218,35 @@ class Assistant:
                     input = input[:-1]
                 input[input_index] = input[input_index][:-1]
                 append = False
-            if char == '\r' or char == '\n':
+
+            if char == '\r' or char == '\n': # Enter pressed
                 print()
-                return [x for x in input if len(x) > 0]
-            if char == " ":
+                return [x for x in input if len(x) > 0] #Returning all non-empty args (to avoid empty args because of spaces)
+            
+            if char == " ": #When space is pressed, we have to add another value in input
                 input_index += 1
                 input.append("")
                 append = False
             if append:
                 input[input_index] += char
-            length = len(" ".join(input))
-            if length > max_length:
-                max_length = length
+
+            """
+            The part below is only the coloring of user input
+            """
+            isValidCommand =  input[0] in self.commands.keys()
+
+            cmd_color = bcolors.CYAN if isValidCommand else bcolors.RED
             
-            validCommand =  input[0] in self.commands.keys()
-            t_color = bcolors.CYAN if validCommand else bcolors.RED
-            
-            cmdName = color(input[0], t_color)
+            cmdName = color(input[0], cmd_color)
 
             argsPart = ""
-            if not validCommand:
+
+            if not isValidCommand:
                 argsPart = " ".join(input[1:])
             else:
+                """
+                Color in blue the first x arguments corresponding to command args number.
+                """
                 argsNumber = self.commands[input[0]][0]
                 if argsNumber == -1:
                     argsNumber = len(input)
@@ -207,6 +254,9 @@ class Assistant:
                 red = " ".join(input[argsNumber+1:])
                 argsPart = f'{color(blue, bcolors.BLUE)}{" " if len(input) > argsNumber+1 and argsNumber > 0 else ""}{color(red, bcolors.RED)}'
 
+            """
+            Updating line with colors
+            """
             line = '{startLine}{cmd}{space}{args}'.format(
                 startLine = startLine,
                 cmd = cmdName,
@@ -214,7 +264,11 @@ class Assistant:
                 args= argsPart,
             )
             TerminalLine.set_line_content(line)
+
     def run(self):
+        """
+        Main function of assistant
+        """
         self.speak(f"Hi ! My name is {color(self.name, bcolors.YELLOW, end=bcolors.BLUE)}.")
         self.speak(f"Don't hesitate to run {color('help', bcolors.CYAN, end=bcolors.BLUE)} to know what i'm capable of !")
         while True:
@@ -228,8 +282,12 @@ class Assistant:
             
         print(color("Goodbye.", bcolors.YELLOW))
 
-#Commands code
+"""
+=====
+Commands code
+=====
 
+"""
 def hello(assistant: Assistant, args):
     assistant.speak(f"Hello World ! My name is {assistant.name}")
 
@@ -354,8 +412,8 @@ def help(assistant: Assistant, args):
 Welcome to this guide !
 My name is {color(assistant.name, bcolors.YELLOW, end=bcolors.BLUE)} and i'm an useless bot :)
 Being useless does not mean that i can't do anything, of course.
-    
-Here is how you can interact with me:
+
+Here is how you can interact with me (there's a little bonus, try {color('search rick', bcolors.YELLOW, end=bcolors.BLUE)}):
 
 {description}
     """)
