@@ -1,4 +1,3 @@
-from http.client import responses
 import random, json, os, time, sys
 try : import requests
 except Exception as e: 
@@ -421,7 +420,7 @@ Here is how you can interact with me (there's a little bonus, try {color('search
     
 
 if __name__ == "__main__":
-    assistant = Assistant(random.choice(["Mallory","Alfred","Neo","Philibert","Tchoupi"]))
+    assistant = Assistant(random.choice(["Mallory","Alfred","Neo","Philibert","Tchoupi","Jarvis","Morty"]))
     assistant.register_command("hello", hello, description="A simple test command that prints Hello World.")
     assistant.register_command("file", cmd_set_file, paramsNumber=1, description="Command that specify the file the program is looking at.")
     assistant.register_command("info", file_info, description="Show informations (lines and chars numbers) about selected file.")
