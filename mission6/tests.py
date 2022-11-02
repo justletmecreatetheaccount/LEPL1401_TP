@@ -1,5 +1,6 @@
 import unittest
 from main import *
+
 class MockAssistant(Assistant):
     def speak(self, text):
         #Remove colors
@@ -8,6 +9,7 @@ class MockAssistant(Assistant):
             text = text.replace(getattr(bcolors, color), "")
 
         self.output = text
+        
 assistant = MockAssistant("Demo assistant")
 assistant.set_file("all-words.dat")
 

@@ -154,7 +154,7 @@ class Assistant:
                     return
                 tmp_words.append(tokens[0])
             self.words = tmp_words
-        self.speak("Dictionary loaded !")
+        self.speak("Words loaded !")
 
     def get_user_input(self, startLine):
         max_length = 0
@@ -286,8 +286,8 @@ def cmd_search(assistant: Assistant, args):
         rick()
         return
     present =  args[0] in assistant.words
-    line = f'at line {bcolors.OKGREEN}{assistant.words.index(args[0])+1}{bcolors.OKBLUE} ' if present else ""
-    assistant.speak(f"{bcolors.OKCYAN} {args[0]} {bcolors.OKBLUE}is {'not ' if not present else ''}in dictionary {line}")
+    line = f'at line {bcolors.GREEN}{assistant.words.index(args[0])+1}{bcolors.BLUE} ' if present else ""
+    assistant.speak(f"{bcolors.CYAN} {args[0]} {bcolors.BLUE}is {'not ' if not present else ''}in dictionary {line}")
     
 def weather(assistant: Assistant, args):
     url = f"https://wttr.in/{' '.join(args) if len(args) > 0 else ''}"
@@ -334,6 +334,10 @@ def translate(assistant: Assistant, args):
         return
     assistant.speak(color(f'{translations[0]["text"]}', bcolors.YELLOW))
 
+def music(assistant: Assistant, args):
+    musics = ["KuC7FFdIaQg", "U-MIsGy9V5w", "Kt0MtjnuScY"]
+    assistant.speak(f"Here is my music of the moment: https://youtube.com/watch?v={random.choice(musics)}")
+
 def help(assistant: Assistant, args):
 
     descriptions = []
@@ -372,5 +376,6 @@ if __name__ == "__main__":
     assistant.register_command("clear", lambda assistant,args: clear_screen(), paramsNumber=0, description="Clear the screen.")
     assistant.register_command("news", news, paramsNumber=-1, description="A command to get worldwide news. You can specify args to search for specific topics.")
     assistant.register_command("translate", translate, paramsNumber=-1, description="<from_lg> <to_lg> text --> Translate text from a language to another language. You have to put languages codes like en, fr, ru, ...")
+    assistant.register_command("music", music, paramsNumber=0, description="Show my music of the moment !")
     assistant.run()
 
