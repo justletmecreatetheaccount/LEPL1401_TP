@@ -220,8 +220,12 @@ class Assistant:
                 append = False
 
             if char == '\r' or char == '\n': # Enter pressed
+                filtered_input = [x for x in input if len(x) > 0]#Getting all non-empty args (to avoid empty args because of spaces)
                 print()
-                return [x for x in input if len(x) > 0] #Returning all non-empty args (to avoid empty args because of spaces)
+                if len(filtered_input) > 0:
+                    return filtered_input
+                else:
+                    return self.get_user_input(startLine)
             
             if char == " ": #When space is pressed, we have to add another value in input
                 input_index += 1
@@ -416,7 +420,9 @@ Being useless does not mean that i can't do anything, of course.
 Here is how you can interact with me (there's a little bonus, try {color('search rick', bcolors.YELLOW, end=bcolors.BLUE)}):
 
 {description}
-    """)
+
+{color('Note: Spécial chars like éè§î... does not work with the input because of getch implementation.', bcolors.YELLOW)}
+""")
 
     
 
