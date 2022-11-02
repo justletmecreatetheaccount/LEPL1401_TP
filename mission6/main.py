@@ -430,7 +430,7 @@ if __name__ == "__main__":
     assistant.register_command("avg", avg, paramsNumber=-1, description="Compute the average value of args.") #-1 means infinite paramsNumber
     assistant.register_command("sum", sum,  paramsNumber=-1, description="Compute the sum of args.")
     assistant.register_command("search", cmd_search, paramsNumber=1, description="Search a word inside the dictionary.")
-    assistant.register_command("weather", weather, paramsNumber=-1, description="Get the weather, specify a city if you want, or it'll be based on your IP.")
+    assistant.register_command("weather", weather, paramsNumber=-1, description="Get the weather, specify a city if you want, or it'll be based on your IP. (Might not work properly because sometimes the provider does not respond to the request)")
     assistant.register_command("clear", lambda assistant,args: clear_screen(), paramsNumber=0, description="Clear the screen.")
     assistant.register_command("news", news, paramsNumber=-1, description="A command to get worldwide news. You can specify args to search for specific topics.")
     assistant.register_command("translate", translate, paramsNumber=-1, description="<from_lg> <to_lg> text --> Translate text from a language to another language. You have to put languages codes like en, fr, ru, ...")
