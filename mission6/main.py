@@ -14,6 +14,7 @@ Program variables
 """
 NEWS_API_KEY="a3cfdcbd372a498b982bd2fcde1592b6"
 TRANSLATE_API_KEY="8d9932ce-70a6-5a26-63ad-686a2e7dc067:fx"
+should_color = False if len(sys.argv) > 1 and sys.argv[1] == "--nocolor" else True
 
 
 """
@@ -95,7 +96,10 @@ def color(text, bcolor, end=bcolors.ENDC):
     """
     Will return a string with colored text
     """
-    return f"{bcolor}{text}{end}"
+    if should_color:
+        return f"{bcolor}{text}{end}"
+    else:
+        return text
 
 """
 =====
@@ -159,7 +163,7 @@ class Assistant:
         self.speak(f"{suggestion}To see all commands, type 'help' ")
     
     def speak(self,text):
-        print(bcolors.BLUE, text, bcolors.ENDC)
+        print(color(text, bcolors.BLUE))
 
     def set_file(self, fileName):
         with open(fileName) as f:
@@ -348,8 +352,20 @@ def cmd_search(assistant: Assistant, args):
         rick()
         return
     present =  args[0] in assistant.words
-    line = f'at line {bcolors.GREEN}{assistant.words.index(args[0])+1}{bcolors.BLUE} ' if present else ""
-    assistant.speak(f"{bcolors.CYAN} {args[0]} {bcolors.BLUE}is {'not ' if not present else ''}in dictionary {line}")
+    word = color(args[0], bcolors.CYAN, end=bcolors.BLUE)
+    if present:
+        line = "{word} is in {file} at line {line}".format(
+            word = word,
+            file = assistant.fileName,
+            line = color(assistant.words.index(args[0])+1, bcolors.GREEN, end=bcolors.BLUE)
+        )
+        assistant.speak(line)
+    else:
+        assistant.speak("{word} is not in {file}".format(
+            word = word,
+            file = assistant.fileName
+        ))
+
     
 def weather(assistant: Assistant, args):
     url = f"https://wttr.in/{' '.join(args) if len(args) > 0 else ''}"
