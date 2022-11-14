@@ -1,3 +1,23 @@
+class bcolors:
+    """
+    Colors special chars for terminal
+    """
+    BLUE = '\033[94m'
+    CYAN = '\033[96m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+
+def color(text, bcolor, end=bcolors.ENDC):
+    """
+    Will return a string with colored text
+    """
+    
+    return f"{bcolor}{text}{end}"
+
+
 class Duree :
     def __init__(self,h,m,s):
         if m > 60 or s > 60:
@@ -28,7 +48,7 @@ class Chanson :
         self.auteur = a
         self.duree = d
     def __str__(self):
-        return f"{self.titre} - {self.auteur} - {self.duree}"
+        return f"{color(self.titre, bcolors.BLUE)} - {color(self.auteur, bcolors.GREEN)} - {color(self.duree, bcolors.YELLOW)}"
 
 class Album :
     def __init__(self, numero):
@@ -44,9 +64,9 @@ class Album :
         self._duree.ajouter(chanson.duree)
 
     def  __str__(self):
-        result = f"Album {self.numero} ({len(self.chansons)} chansons, {self._duree})"
+        result = color(f"Album {self.numero} ({len(self.chansons)} chansons, {self._duree})", bcolors.CYAN)
         for (i, x) in enumerate(self.chansons):
-            result += f"\n0{i}: {x.titre} - {x.auteur} - {x.duree}" #TODO: Display i in two digits
+            result += color("\n{:02d}: {}".format(i, x), bcolors.BLUE) #TODO: Display i in two digits
         return result
 
 class FileLoader():
@@ -60,7 +80,6 @@ class FileLoader():
                 title, author, min, sec = line.split(" ")
                 song = Chanson(title, author, Duree(0, int(min), int(sec)))
                 while albums[-1].add(song) == False:
-                    print("##################")
                     albums.append(Album(len(albums)+1))
         return albums
 

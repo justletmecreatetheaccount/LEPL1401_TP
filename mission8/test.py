@@ -23,6 +23,10 @@ class DureeTest(unittest.TestCase):
     def test_raise(self):
         with self.assertRaises(ValueError):
             Duree(100,100,100)
-            
+    def test_str(self):
+        u = Duree(1,2,3)
+        self.assertEqual(u.__str__(), "01:02:03")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
