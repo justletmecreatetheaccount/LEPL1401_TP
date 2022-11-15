@@ -27,6 +27,28 @@ class DureeTest(unittest.TestCase):
         u = Duree(1,2,3)
         self.assertEqual(u.__str__(), "01:02:03")
 
+class ChansonTest(unittest.TestCase):
+    def test_basic(self):
+        chanson = Chanson("Super song","Super artist", Duree(1,0,0))
+        self.assertEqual(chanson.auteur, "Super artist")
+        self.assertEqual(chanson.titre, "Super song")
+        self.assertEqual(chanson.duree.to_secondes(), Duree(1,0,0).to_secondes())
+
+class AbumTest(unittest.TestCase):
+    def test_basic(self):
+        album = Album(5)
+        self.assertEqual(album.chansons, [])
+        self.assertEqual(album.numero, 5)
+        chanson = Chanson("Super song","Super artist", Duree(1,0,0))
+        album.add(chanson)
+        self.assertEqual(album.chansons, [chanson])
+    def test_length_add(self):
+        album = Album(0)
+        duree = Duree(0,1,0)
+        for _ in range(75):
+            album.add(Chanson("", "", duree))
+        self.assertEqual(len(album.chansons), 75)
+        self.assertFalse(album.add(Chanson("","", duree)), 75)
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
